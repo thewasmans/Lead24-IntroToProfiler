@@ -1,23 +1,43 @@
+using Unity.Profiling;
 using UnityEngine;
 
 public class SomeSlowScript : MonoBehaviour
 {
     [SerializeField] private int _iterationValue01;
+    [SerializeField] private int _iterationValue02;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    ProfilerMarker profilerMarker01 = new ProfilerMarker(ProfilerCategory.Scripts, "MyTestProfiler");
+    ProfilerMarker<int> profilerMarkerWithInData = new("MyTestProfiler", "Iterations"); 
+
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
     void Update()
     {
-        SomeHeavyCalculation();
+        using(profilerMarker01.Auto())
+        {
+            SomeHeavyCalculation();
+        }
+        
+        using(profilerMarkerWithInData.Auto(2000))
+        {
+            SomeOtherHeavyCalculation();
+        }
+
+        profilerMarker01.Begin();
+        SomeOtherHeavyCalculation();
+        profilerMarker01.End();
     }
 
 
     private void SomeHeavyCalculation()
+    {
+        FindPrimeNumber(_iterationValue01);
+    }
+
+    private void SomeOtherHeavyCalculation()
     {
         FindPrimeNumber(_iterationValue01);
     }
